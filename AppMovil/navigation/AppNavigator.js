@@ -8,6 +8,7 @@ import FormularioLogin from '../pantallas/FormularioLogin';
 import FormularioCrearCuenta from '../pantallas/FormularioCrearCuenta';
 import FormularioRegistro from '../pantallas/FormularioRegistro';
 import GameLevels from '../pantallas/GameLevels';
+import PracticeMode from '../pantallas/PracticeMode';
 
 const Stack = createStackNavigator();
 
@@ -22,6 +23,7 @@ const AppNavigator = () => {
         <Stack.Screen name="Home" component={Home} />
         <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="GameLevels" component={GameLevels}/>
+        <Stack.Screen name="PracticeMode" component={PracticeMode}/>
       </Stack.Navigator>
     </NavigationContainer>
   );
