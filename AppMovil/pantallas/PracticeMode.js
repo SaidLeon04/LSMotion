@@ -1,4 +1,6 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, View, Text } from "react";
+import Video, {VideoRef} from 'react-native-video';
+
 
 const PracticeMode = () => {
   const videoRef = useRef(null);
