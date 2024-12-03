@@ -1,84 +1,73 @@
-import React, { useRef, useState, useEffect, View, Text } from "react";
-import Video, {VideoRef} from 'react-native-video';
-
+import React, { useRef, useState, useEffect } from "react";
+import { View, Text, StyleSheet } from "react-native";
+import { Camera } from "expo-camera";
 
 const PracticeMode = () => {
-  const videoRef = useRef(null);
+  const cameraRef = useRef(null);
   const socketRef = useRef(null);
+  const [hasPermission, setHasPermission] = useState(null);
   const [serverResponse, setServerResponse] = useState("");
 
   useEffect(() => {
-    // Acceso a la cámara
-    navigator.mediaDevices
-      .getUserMedia({ video: true })
-      .then((stream) => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.play();
-        }
+    // Solicitar permisos de cámara
+    (async () => {
+      const { status } = await Camera.requestCameraPermissionsAsync();
+      setHasPermission(status === "granted");
+    })();
 
-        // Conexión al WebSocket
-        socketRef.current = new WebSocket("ws://localhost:5000/video-stream");
+    // Establecer conexión WebSocket
+    socketRef.current = new WebSocket("ws://localhost:5000/video-stream");
 
-        // Escuchar mensajes del servidor
-        socketRef.current.onmessage = (event) => {
-          setServerResponse(event.data);
-          console.log("Respuesta del servidor:", event.data);
-        };
+    // Escuchar mensajes del servidor
+    socketRef.current.onmessage = (event) => {
+      setServerResponse(event.data);
+      console.log("Respuesta del servidor:", event.data);
+    };
 
-        // Enviar frames al WebSocket
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-
-        const intervalId = setInterval(() => {
-          if (videoRef.current) {
-            canvas.width = videoRef.current.videoWidth;
-            canvas.height = videoRef.current.videoHeight;
-            ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-
-            canvas.toBlob(
-              (blob) => {
-                if (
-                  socketRef.current &&
-                  socketRef.current.readyState === WebSocket.OPEN
-                ) {
-                  socketRef.current.send(blob);
-                }
-              },
-              "image/jpeg",
-              0.95
-            );
-          }
-        }, 100); // Capturar frames cada 100ms
-
-        return () => clearInterval(intervalId);
-      })
-      .catch((err) => console.error("Error al acceder a la cámara:", err));
-
-    // Cleanup al desmontar el componente
+    // Limpieza al desmontar
     return () => {
-      if (videoRef.current && videoRef.current.srcObject) {
-        const tracks = videoRef.current.srcObject.getTracks();
-        tracks.forEach((track) => track.stop());
-      }
-      if (socketRef.current) {
-        socketRef.current.close();
-      }
+      if (socketRef.current) socketRef.current.close();
     };
   }, []);
 
+  useEffect(() => {
+    if (hasPermission && cameraRef.current) {
+      // Capturar frames y enviarlos al WebSocket
+      const intervalId = setInterval(async () => {
+        if (cameraRef.current && socketRef.current?.readyState === WebSocket.OPEN) {
+          const photo = await cameraRef.current.takePictureAsync({ base64: true, quality: 0.5 });
+          socketRef.current.send(photo.base64); // Enviar el frame como base64
+        }
+      }, 100); // Capturar frames cada 100ms
+
+      return () => clearInterval(intervalId);
+    }
+  }, [hasPermission]);
+
+  if (hasPermission === null) {
+    return <Text>Solicitando permisos...</Text>;
+  }
+
+  if (hasPermission === false) {
+    return <Text>No se otorgaron permisos para usar la cámara</Text>;
+  }
+
   return (
-    <View>
-      <Text>Letra: {serverResponse}</Text>
-      <Video ref={videoRef} autoPlay muted style={videoStyles}></Video>
+    <View style={styles.container}>
+      <Text style={styles.text}>Letra: {serverResponse}</Text>
+      <Camera
+        ref={cameraRef}
+        style={styles.camera}
+        type={Camera.Constants.Type.front} // Cámara frontal
+      />
     </View>
   );
 };
 
-const videoStyles = {
-  width: "100%",
-  height: "auto",
-  border: "2px solid black",
-};
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: "black" },
+  text: { color: "white", textAlign: "center", margin: 10 },
+  camera: { flex: 1 },
+});
 
 export default PracticeMode;
