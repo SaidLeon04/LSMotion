@@ -66,10 +66,10 @@ const PracticeMode = () => {
   }, []);
 
   return (
-    <div>
-      <h1>Letra: {serverResponse}</h1>
-      <video ref={videoRef} autoPlay muted style={videoStyles}></video>
-    </div>
+    <View>
+      <Text>Letra: {serverResponse}</Text>
+      <Video ref={videoRef} autoPlay muted style={videoStyles}></Video>
+    </View>
   );
 };
 
