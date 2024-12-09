@@ -23,7 +23,7 @@ const AppNavigator = () => {
         <Stack.Screen name="Home" component={Home} />
         <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="GameLevels" component={GameLevels}/>
-        <Stack.Screen name="PracticeMode" component={PracticeMode}/>
+        <Stack.Screen name="PracticeMode" component={PracticeMode}  options={{ headerShown: false }}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

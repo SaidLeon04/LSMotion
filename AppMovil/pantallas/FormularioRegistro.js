@@ -32,7 +32,7 @@ const FormularioRegistro = ({ route, navigation }) => {
     });
 
     try {
-      const response = await axios.post('http://192.168.137.232:5000/register', {
+      const response = await axios.post('https://new-folder-7x97.onrender.com/register', {
         nombre_usuario: nombreUsuario, // Enviar nombre de usuario
         email, // Enviar correo
         password, // Enviar contraseña

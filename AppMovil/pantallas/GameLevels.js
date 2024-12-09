@@ -4,7 +4,7 @@ import axios from "axios";
 
 const GameLevels = () => {
   const [levels, setLevels] = useState([]);
-  const API_URL = "http://192.168.137.232:5000"; // Cambia a tu URL del backend
+  const API_URL = "https://new-folder-7x97.onrender.com"; // Cambia a tu URL del backend
 
   // Función para obtener los niveles desde la API
   const fetchLevels = async () => {

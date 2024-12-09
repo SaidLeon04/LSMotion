@@ -1,73 +1,107 @@
-import React, { useRef, useState, useEffect } from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { Camera } from "expo-camera";
+// PracticeMode.js
+import React, { useEffect, useState, useRef } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Button,
+  TouchableOpacity,
+} from 'react-native';
 
-const PracticeMode = () => {
-  const cameraRef = useRef(null);
+import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+
+const PracticeMode = ({ navigation }) => {
+  
+  const CameraType = ['front', 'back']; // Ejemplo de array
+  const [facing, setFacing] = useState(CameraType[0]);
+  const [permission, requestPermission] = useCameraPermissions();
+  const [cameraRef, setCameraRef] = useState(null);
   const socketRef = useRef(null);
-  const [hasPermission, setHasPermission] = useState(null);
-  const [serverResponse, setServerResponse] = useState("");
 
-  useEffect(() => {
-    // Solicitar permisos de cámara
-    (async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === "granted");
-    })();
+  const toggleCameraFacing = () => {
+    setFacing((current) => (current === 'back' ? 'front' : 'back'));
+  };
 
-    // Establecer conexión WebSocket
-    socketRef.current = new WebSocket("ws://localhost:5000/video-stream");
+  
 
-    // Escuchar mensajes del servidor
-    socketRef.current.onmessage = (event) => {
-      setServerResponse(event.data);
-      console.log("Respuesta del servidor:", event.data);
-    };
-
-    // Limpieza al desmontar
-    return () => {
-      if (socketRef.current) socketRef.current.close();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (hasPermission && cameraRef.current) {
-      // Capturar frames y enviarlos al WebSocket
-      const intervalId = setInterval(async () => {
-        if (cameraRef.current && socketRef.current?.readyState === WebSocket.OPEN) {
-          const photo = await cameraRef.current.takePictureAsync({ base64: true, quality: 0.5 });
-          socketRef.current.send(photo.base64); // Enviar el frame como base64
-        }
-      }, 100); // Capturar frames cada 100ms
-
-      return () => clearInterval(intervalId);
-    }
-  }, [hasPermission]);
-
-  if (hasPermission === null) {
-    return <Text>Solicitando permisos...</Text>;
+  // Render condicional
+  if (!permission) {
+    return <View />;
   }
 
-  if (hasPermission === false) {
-    return <Text>No se otorgaron permisos para usar la cámara</Text>;
+  if (!permission.granted) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.message}>
+          We need your permission to show the camera
+        </Text>
+        <Button onPress={requestPermission} title="grant permission" />
+      </View>
+    );
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Letra: {serverResponse}</Text>
-      <Camera
-        ref={cameraRef}
-        style={styles.camera}
-        type={Camera.Constants.Type.front} // Cámara frontal
-      />
+      <View style={styles.cameraContainer}>
+        <CameraView
+          style={styles.camera}
+          facing={facing}
+          ref={(ref) => setCameraRef(ref)}
+        >
+          <View style={styles.cameraControls}>
+            <TouchableOpacity
+              style={styles.flipButton}
+              onPress={toggleCameraFacing}
+            >
+              <Text style={styles.flipText}>Cambiar Cámara</Text>
+            </TouchableOpacity>
+          </View>
+        </CameraView>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "black" },
-  text: { color: "white", textAlign: "center", margin: 10 },
-  camera: { flex: 1 },
+  container: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  message: {
+    color: '#fff',
+    fontSize: 18,
+  },
+  cameraContainer: {
+    width: '60%', // Ajusta el tamaño del cuadrado
+    aspectRatio: 1, // Relación de aspecto 1:1 para un cuadrado
+    overflow: 'hidden',
+    borderRadius: 20, // Opcional: bordes redondeados
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
+  camera: {
+    flex: 1,
+  },
+  cameraControls: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 20,
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  flipButton: {
+    padding: 15,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 10,
+  },
+  flipText: {
+    color: '#fff',
+    fontSize: 20,
+  },
 });
 
 export default PracticeMode;
