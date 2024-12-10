@@ -266,5 +266,30 @@ def play_level(level_id):
         return jsonify({"error": str(e)}), 500
 
 
+@app.route('/get_glosary', methods=['GET'])
+def get_glosary():
+    try:
+        glosary = []
+        # Obtener todos los documentos de la colección glosary sin el campo "puntos"
+        glosary_cursor = glosary_collection.find({}, {"puntos": 0})  # Excluye el campo "puntos"
+
+        for entry in glosary_cursor:
+            # Convertir ObjectId a string
+            entry['_id'] = str(entry['_id'])
+
+            # Crear la estructura del glosario sin los puntos
+            glosary_data = {
+                "letra": entry['letra'],
+                "imagen": entry['imagen'],
+                "descripcion": entry['descripcion'],
+            }
+
+            # Agregar al glosario
+            glosary.append(glosary_data)
+
+        return jsonify({"glosary": glosary}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)

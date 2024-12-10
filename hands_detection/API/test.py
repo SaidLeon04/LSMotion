@@ -208,5 +208,5 @@ def video_stream(ws):
                         ws.send("Sin letra detectada")
         else:
             break
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=5000, debug=True)

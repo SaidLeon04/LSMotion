@@ -14,27 +14,44 @@ const Home = ({ navigation }) => {
   const [userName, setUserName] = useState("Usuario");
   const [token, setToken] = useState(null);
 
+
+  const isTokenExpired = (token) => {
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1])); // Decodifica el payload
+      const currentTime = Math.floor(Date.now() / 1000);
+      return payload.exp < currentTime; // Verifica si ha expirado
+    } catch (error) {
+      console.error("Error al procesar el token:", error);
+      return true; // Si hay un error, asumir que el token está expirado
+    }
+  };
+
   useEffect(() => {
     const checkToken = async () => {
       try {
         const storedToken = await AsyncStorage.getItem("authToken");
         if (storedToken) {
-          setToken(storedToken);
-          const storedName = await AsyncStorage.getItem("userName");
-          if (storedName) setUserName(storedName);
+          if (isTokenExpired(storedToken)) {
+            // Si el token ha expirado, redirige a Login
+            await AsyncStorage.removeItem("authToken"); // Limpia el token expirado
+            navigation.replace("Login");
+          } else {
+            setToken(storedToken);
+            const storedName = await AsyncStorage.getItem("userName");
+            if (storedName) setUserName(storedName);
+          }
         } else {
           // Si no hay token, redirige a Login
           navigation.replace("Login");
         }
       } catch (error) {
-        console.error("Error al obtener el token:", error);
+        console.error("Error al verificar el token:", error);
         navigation.replace("Login");
       }
     };
 
     checkToken();
   }, [navigation]);
-
   useEffect(() => {
     const loadSound = async () => {
       const { sound } = await Audio.Sound.createAsync(

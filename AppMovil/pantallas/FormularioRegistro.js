@@ -41,7 +41,7 @@ const FormularioRegistro = ({ route, navigation }) => {
 
       if (response.status === 201) {
         alert('¡Registro exitoso!');
-        navigation.navigate('login'); // Redirige a la pantalla principal o inicio de sesión
+        navigation.navigate('Login'); // Redirige a la pantalla principal o inicio de sesión
       }
     } catch (error) {
       console.error('Error al registrar:', error.response?.data || error);
