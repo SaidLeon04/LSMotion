@@ -1,78 +1,114 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Button,
+  TouchableOpacity,
+} from 'react-native';
+import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 
-const PracticeMode = () => {
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
+const PracticeMode = ({ navigation }) => {
+  
+  // Establecer tipo de cámara
+  const CameraType = ['front', 'back']; 
+  const [facing, setFacing] = useState(CameraType[0]);
+
+
+  const [permission, requestPermission] = useCameraPermissions();
+
+  const [cameraRef, setCameraRef] = useState(null);
   const socketRef = useRef(null);
-  const [serverResponse, setServerResponse] = useState("");
-  const [isSending, setIsSending] = useState(true);
+  const [serverResponse, setServerResponse] = useState('');
 
   useEffect(() => {
-    // Acceso a la cámara
-    navigator.mediaDevices
-      .getUserMedia({ video: true })
-      .then((stream) => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
+    
+    if (socketRef.current === null || socketRef.current.readyState === WebSocket.CLOSED) {
+      socketRef.current = new WebSocket("ws://localhost:5000/video-stream");
+      console.log("socketRef.current:", socketRef.current);
+      console.log("socketRef.current.readyState:", socketRef.current.readyState);
+  
 
-        // Conexión al WebSocket
-        socketRef.current = new WebSocket("ws://localhost:5000/video-stream");
-
-        socketRef.current.onmessage = (event) => {
-          setServerResponse(event.data); // Actualiza la respuesta del servidor
-          console.log("Respuesta del servidor:", event.data);
-        };
-
-        // Enviar frames al WebSocket
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext("2d");
-
-        const sendFrame = setInterval(() => {
-          if (videoRef.current && ctx) {
-            // Dibujar el video en el canvas
-            canvas.width = videoRef.current.videoWidth;
-            canvas.height = videoRef.current.videoHeight;
-            ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-
-            // Convertir el canvas a un Blob y enviarlo al WebSocket
-            canvas.toBlob((blob) => {
-              if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-                socketRef.current.send(blob);
-              }
-            }, "image/jpeg");
-          }
-        }, 100); // Capturar frames cada 100ms
-
-        return () => clearInterval(sendFrame);
-      })
-      .catch((err) => console.error("Error al acceder a la cámara:", err));
-
-    // Limpiar recursos al desmontar
-    return () => {
-      if (videoRef.current && videoRef.current.srcObject) {
-        const tracks = videoRef.current.srcObject.getTracks();
-        tracks.forEach((track) => track.stop());
-      }
+      socketRef.current.onopen = () => {
+        console.log("Conexión WebSocket abierta: ", socketRef.current.readyState);
+      };
+  
+      // Manejar mensajes desde el servidor
       if (socketRef.current) {
-        socketRef.current.close();
+        socketRef.current.onmessage = (event) => {
+          const newResponse = event.data;
+          if (newResponse !== serverResponse) {
+            setServerResponse(newResponse); // Solo actualiza si cambia
+          }
+        };
       }
-    };
+  
+      // Limpiar la conexión al desmontar
+      return () => {
+        if (socketRef.current) {
+          socketRef.current.close();
+        }
+      };
+    }
   }, []);
+  
 
-  const toggleSending = () => {
-    setIsSending((prev) => !prev);
-  };
+  useEffect(() => {
+    console.log(cameraRef);
+    console.log(socketRef.current);
+    console.log(socketRef.current.readyState);
+    if (cameraRef && socketRef.current) {
+      console.log("waos")
+      
+      const intervalId = setInterval(() => {
+        if (cameraRef) {
+          cameraRef.takePictureAsync({ base64: true }).then((photo) => {
+            if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+              fetch(photo.uri)
+                .then(res => res.blob())
+                .then(blob => {
+                  socketRef.current.send(blob);
+                })
+                .catch(err => console.error('Error al enviar imagen:', err));
+            }
+          });
+        }
+      }, 100); // Captura cada 100ms
+  
+      // Limpiar el intervalo al desmontar el componente
+      return () => clearInterval(intervalId);
+    } else {
+      console.log("Esperando a la cámara o WebSocket...", socketRef.current.readyState);
+    }
+  }, [cameraRef, socketRef.current?.readyState]);
+  
+
+  if (!permission) {
+    return <View />;
+  }
+
+  if (!permission.granted) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.message}>
+          We need your permission to show the camera
+        </Text>
+        <Button onPress={requestPermission} title="grant permission" />
+      </View>
+    );
+  }  
 
   return (
     <View style={styles.container}>
-      <Text style={styles.serverResponse}>Letra: {serverResponse}</Text>
-      <video ref={videoRef} autoPlay muted style={styles.video}></video>
-      <canvas ref={canvasRef} style={styles.canvas}></canvas>
-      <TouchableOpacity style={styles.button} onPress={toggleSending}>
-        <Text style={styles.buttonText}>{isSending ? 'Pausar' : 'Reanudar'}</Text>
-      </TouchableOpacity>
+       <View style={styles.cameraContainer}>
+        <CameraView
+          style={styles.camera}
+          facing={facing}
+          ref={(ref) => setCameraRef(ref)}
+        >
+        </CameraView>
+        </View>  
+        <Text style={styles.response}>Server Response: {serverResponse}</Text>  
     </View>
   );
 };
@@ -80,35 +116,43 @@ const PracticeMode = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'white',
   },
-  video: {
-    width: '100%',
-    height: 'auto',
-    border: '2px solid black',
+  message: {
+    color: '#fff',
+    fontSize: 18,
+  },
+  cameraContainer: {
+    height: '60%', // Ajusta el tamaño del cuadrado
+    width: '60%', // Ajusta el tamaño del cuadrado
+    aspectRatio: 1, // Relación de aspecto 1:1 para un cuadrado
+    overflow: 'hidden',
+    borderRadius: 20, // Opcional: bordes redondeados
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
+  camera: {
+    flex: 1,
+  },
+  cameraControls: {
     position: 'absolute',
-    top: 0,
+    bottom: 0,
     left: 0,
+    right: 0,
+    padding: 20,
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
-  canvas: {
-    width: '100%',
-    height: 'auto',
-    display: 'none', // Ocultar el canvas, solo se usa para tomar los frames
-  },
-  button: {
-    marginTop: 20,
-    padding: 10,
+  flipButton: {
+    padding: 15,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     borderRadius: 10,
   },
-  buttonText: {
-    color: 'white',
-  },
-  serverResponse: {
-    fontSize: 18,
-    color: '#000',
+  flipText: {
+    color: '#fff',
+    fontSize: 20,
   },
 });
 
