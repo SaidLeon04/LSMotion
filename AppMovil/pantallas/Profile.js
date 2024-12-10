@@ -31,7 +31,7 @@ const Profile = () => {
           return;
         }
 
-        const response = await axios.get("http://192.168.137.232:5000/profile", {
+        const response = await axios.get("https://new-folder-7x97.onrender.com/profile", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -42,7 +42,7 @@ const Profile = () => {
         // Normalizar datos:
         const avatarUrl = user.avatar.startsWith("http")
           ? user.avatar
-          : `http://192.168.137.232:5000/uploads/${user.avatar}`;
+          : `https://new-folder-7x97.onrender.com/uploads/${user.avatar}`;
 
         setUserData({
           ...user,

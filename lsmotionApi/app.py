@@ -37,10 +37,14 @@ glosary_collection = glosary_db['alphabet']
 @app.route('/', methods=['GET'])
 def home():
     try:
+        print("Intentando hacer ping a MongoDB Atlas...")  # Log de prueba
         client.admin.command('ping')
+        print("Conexión exitosa a MongoDB Atlas.")  # Log si pasa el ping
         return jsonify({"success": True, "message": "Conexión exitosa a MongoDB Atlas"}), 200
     except Exception as e:
+        print("Error al conectar a MongoDB Atlas:", str(e))  # Log del error detallado
         return jsonify({"success": False, "message": "Error al conectar a MongoDB Atlas", "error": str(e)}), 500
+
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -263,4 +267,4 @@ def play_level(level_id):
 
 
 if __name__ == "__main__":
-    app.run(host='http://192.168.137.232', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
