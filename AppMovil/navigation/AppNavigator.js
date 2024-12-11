@@ -11,6 +11,9 @@ import GameLevels from '../pantallas/GameLevels';
 import PracticeMode from '../pantallas/PracticeMode';
 import Glossary from '../pantallas/glosario.js';
 
+// Niveles
+import AbcScrach from '../pantallas/levels/AbcScrach';
+
 const Stack = createStackNavigator();
 
 const AppNavigator = () => {
@@ -26,6 +29,7 @@ const AppNavigator = () => {
         <Stack.Screen name="GameLevels" component={GameLevels}/>
         <Stack.Screen name="PracticeMode" component={PracticeMode}  options={{ headerShown: false }}/>
         <Stack.Screen name="Glossary" component={Glossary}/>
+        <Stack.Screen name="AbcScrach" component={AbcScrach}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -59,7 +59,7 @@ puntos_correctos_b = [
     ( 0.3878788948059082, 0.1989011913537979, -0.097742959856987)
 ]
 
-pubtos_correctos_c = [
+puntos_correctos_c = [
     [0.49561452865600586, 0.7966222167015076, 7.229415928122762e-07],
     [0.6492520570755005, 0.7230750918388367, 0.0008869275916367769],
     [0.7564579248428345, 0.6064603328704834, -0.015470944344997406],
@@ -169,7 +169,7 @@ def comparar_conjuntos_puntos(mano_actual, conjuntos_puntos_correctos, toleranci
             return index  # Devuelve el índice del conjunto detectado
     return -1 
 
-conjuntos_puntos_correctos = [puntos_correctos_a, puntos_correctos_b, puntos_correctos_g, puntos_correctos_t, puntos_correctos_o]
+conjuntos_puntos_correctos = [puntos_correctos_a, puntos_correctos_b, puntos_correctos_c, puntos_correctos_g, puntos_correctos_t, puntos_correctos_o]
 
 @sock.route('/video-stream')
 def video_stream(ws):
@@ -199,11 +199,48 @@ def video_stream(ws):
                         elif conjunto_detectado == 1:
                             ws.send("b")
                         elif conjunto_detectado == 2:
-                            ws.send("g")
+                            ws.send("c")
                         elif conjunto_detectado == 3:
-                            ws.send("t")
+                            ws.send("g")
                         elif conjunto_detectado == 4:
+                            ws.send("t")
+                        elif conjunto_detectado == 5:
                             ws.send("o")
+                    else:
+                        ws.send("Sin letra detectada")
+        else:
+            break
+
+
+@sock.route('/abc')
+def abc(ws):
+    while True:
+        data = ws.receive()
+        if data:
+            # Decodificar frame
+            np_frame = np.frombuffer(data, np.uint8)
+            frame = cv2.imdecode(np_frame, cv2.IMREAD_COLOR)
+
+            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            resultado = hands.process(rgb_frame)
+
+            if resultado.multi_hand_landmarks:
+                for hand_landmarks in resultado.multi_hand_landmarks:
+                    # Dibujamos las conexiones de la mano
+                    mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+
+                    # Extraemos los puntos actuales de la mano
+                    puntos_mano = hand_landmarks.landmark
+
+                    conjunto_detectado = comparar_conjuntos_puntos(puntos_mano, conjuntos_puntos_correctos)
+                    print(f"Conjunto detectado: {conjunto_detectado}")
+                    if conjunto_detectado != -1:
+                        if conjunto_detectado == 0:
+                            ws.send("a")
+                        elif conjunto_detectado == 1:
+                            ws.send("b")
+                        elif conjunto_detectado == 2:
+                            ws.send("c")
                     else:
                         ws.send("Sin letra detectada")
         else:

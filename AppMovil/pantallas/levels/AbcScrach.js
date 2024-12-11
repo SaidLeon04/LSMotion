@@ -9,18 +9,18 @@ import {
 } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 
-const PracticeMode = ({ navigation }) => {
+const AbcScratch = ({ navigation }) => {
 
   // Respuestas interactivas
   const respuestas = ["Casi lo logras", "Bien", "Ajusta tu posición", "Sigue asi", "Un poco mas preciso"];
 
-  const [movementsList, setMovementsList] = useState([]);
+  const movementsList = ["a", "b", "c"];
 
-  const pastelColors = [
-    "#A3C9FF", // Azul claro pastel
-    "#FFB3B3", // Rojo pastel
-    "#FFEB99"  // Amarillo pastel
-  ];
+  const [score, setScore] = useState(0);
+  const [backgroundColorA, setBackgroundColorA] = useState('white');
+  const [backgroundColorB, setBackgroundColorB] = useState('white');
+  const [backgroundColorC, setBackgroundColorC] = useState('white');
+
 
   
   // Establecer tipo de cámara
@@ -39,7 +39,7 @@ const PracticeMode = ({ navigation }) => {
     setServerResponse("¡Mueve tus manos para comenzar!");
     if (socketRef.current === null || socketRef.current.readyState === WebSocket.CLOSED) {
      // socketRef.current = new WebSocket("wss://handdetection-api.onrender.com/video-stream");
-      socketRef.current = new WebSocket("ws://localhost:5000/video-stream");
+      socketRef.current = new WebSocket("ws://localhost:5000/abc");
       
       // Depración de la conexión, no hace nada en el funcionamiento
      socketRef.current.onopen = () => {
@@ -55,8 +55,16 @@ const PracticeMode = ({ navigation }) => {
             setServerResponse(respuestas[randomPhrase]);
           }else{
             setServerResponse(event.data);
-            const newMovement = event.data;
-            setMovementsList((prevList) => [...prevList, newMovement]);
+            if (event.data === 'a') {
+              setScore((prevScore) => prevScore + 50);
+              setBackgroundColorA('#A3C9FF');
+            } else if (event.data === 'b') {
+              setScore((prevScore) => prevScore + 25);
+              setBackgroundColorB('#FFEB99');
+            } else if (event.data === 'c') {
+              setScore((prevScore) => prevScore + 10);
+              setBackgroundColorC('#FFB3B3');
+            }
           }
         };
       }
@@ -117,13 +125,18 @@ const PracticeMode = ({ navigation }) => {
 
           <View style={styles.movementsContainer}>
             <Text style={styles.movementsTitle}>Lista de movimientos</Text>
-              <ScrollView>
-                {movementsList.reverse().map((movement, index) => (
-                  <View key={index}  style={styles.movementCard}>
-                    <Text style={styles.movementItem}>{movement}</Text>
-                  </View>
-                ))}
-              </ScrollView>
+            <View>
+                <View style={[styles.movementCard, { backgroundColor:backgroundColorA }]}>
+                  <Text style={styles.movementItem}>{movementsList[0]}</Text>
+                </View>
+                <View style={[styles.movementCard, { backgroundColor:backgroundColorB }]}>
+                  <Text style={styles.movementItem}>{movementsList[1]}</Text>
+                </View>
+                <View style={[styles.movementCard, { backgroundColor:backgroundColorC }]}>
+                  <Text style={styles.movementItem}>{movementsList[2]}</Text>
+                </View>
+              </View>
+
           </View>
 
           <View style={styles.cameraWrapper}>
@@ -136,6 +149,11 @@ const PracticeMode = ({ navigation }) => {
           </View>
 
           <View style={styles.buttonContainer}>
+            <View style={styles.scoreContainer}>
+              <Text style={styles.score}>Puntuación</Text>
+              <Text style={styles.score}>{score}</Text>
+            </View>
+        
             <Button title="Glosario" onPress={() => navigation.navigate('Glossary')}/>
 
             <Button title="Volver" onPress={() => navigation.navigate('Home')} />
@@ -219,6 +237,12 @@ const styles = StyleSheet.create({
     elevation: 2, // Para Android
     width: '100%', // Para que cada tarjeta ocupe todo el ancho disponible
   },
+  score:{
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginTop: 20,
+    color: '#000',
+  }
 });
 
-export default PracticeMode;
+export default AbcScratch;
