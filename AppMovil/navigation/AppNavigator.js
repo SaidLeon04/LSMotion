@@ -18,7 +18,7 @@ const AppNavigator = () => {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Home">
         <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
-        <Stack.Screen name="FormularioLogin" component={FormularioLogin}/>
+        <Stack.Screen name="FormularioLogin" component={FormularioLogin}  />
         <Stack.Screen name="FormularioCrearCuenta" component={FormularioCrearCuenta}/> 
         <Stack.Screen name="FormularioRegistro" component={FormularioRegistro}/>
         <Stack.Screen name="Home" component={Home} />

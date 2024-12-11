@@ -5,14 +5,28 @@ import {
   StyleSheet,
   Button,
   TouchableOpacity,
+  ScrollView
 } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 
 const PracticeMode = ({ navigation }) => {
+
+  // Respuestas interactivas
+  const respuestas = ["Casi lo logras", "Bien", "Ajusta tu posición", "Sigue asi", "Un poco mas preciso"];
+
+  const [movementsList, setMovementsList] = useState([]);
+
+  const pastelColors = [
+    "#A3C9FF", // Azul claro pastel
+    "#FFB3B3", // Rojo pastel
+    "#FFEB99"  // Amarillo pastel
+  ];
+
   
   // Establecer tipo de cámara
   const CameraType = ['front', 'back']; 
   const [facing, setFacing] = useState(CameraType[0]);
+
 
 
   const [permission, requestPermission] = useCameraPermissions();
@@ -22,28 +36,31 @@ const PracticeMode = ({ navigation }) => {
   const [serverResponse, setServerResponse] = useState('');
 
   useEffect(() => {
-    
+    setServerResponse("¡Mueve tus manos para comenzar!");
     if (socketRef.current === null || socketRef.current.readyState === WebSocket.CLOSED) {
+     // socketRef.current = new WebSocket("wss://handdetection-api.onrender.com/video-stream");
       socketRef.current = new WebSocket("ws://localhost:5000/video-stream");
-      console.log("socketRef.current:", socketRef.current);
-      console.log("socketRef.current.readyState:", socketRef.current.readyState);
-  
-
-      socketRef.current.onopen = () => {
-        console.log("Conexión WebSocket abierta: ", socketRef.current.readyState);
+      
+      // Depración de la conexión, no hace nada en el funcionamiento
+     socketRef.current.onopen = () => {
+      console.log("Conexión WebSocket abierta: ", socketRef.current.readyState);
       };
   
       // Manejar mensajes desde el servidor
       if (socketRef.current) {
         socketRef.current.onmessage = (event) => {
-          const newResponse = event.data;
-          if (newResponse !== serverResponse) {
-            setServerResponse(newResponse); // Solo actualiza si cambia
+          setServerResponse(event.data);
+          if (event.data === 'Sin letra detectada'){
+            const randomPhrase = Math.floor(Math.random() * respuestas.length);
+            setServerResponse(respuestas[randomPhrase]);
+          }else{
+            setServerResponse(event.data);
+            const newMovement = event.data;
+            setMovementsList((prevList) => [...prevList, newMovement]);
           }
         };
       }
-  
-      // Limpiar la conexión al desmontar
+
       return () => {
         if (socketRef.current) {
           socketRef.current.close();
@@ -54,11 +71,7 @@ const PracticeMode = ({ navigation }) => {
   
 
   useEffect(() => {
-    console.log(cameraRef);
-    console.log(socketRef.current);
-    console.log(socketRef.current.readyState);
     if (cameraRef && socketRef.current) {
-      console.log("waos")
       
       const intervalId = setInterval(() => {
         if (cameraRef) {
@@ -73,7 +86,7 @@ const PracticeMode = ({ navigation }) => {
             }
           });
         }
-      }, 100); // Captura cada 100ms
+      }, 2000); // Captura cada 100ms
   
       // Limpiar el intervalo al desmontar el componente
       return () => clearInterval(intervalId);
@@ -101,14 +114,35 @@ const PracticeMode = ({ navigation }) => {
   return (
     <View style={styles.container}>
        <View style={styles.cameraContainer}>
-        <CameraView
-          style={styles.camera}
-          facing={facing}
-          ref={(ref) => setCameraRef(ref)}
-        >
-        </CameraView>
-        </View>  
-        <Text style={styles.response}>Server Response: {serverResponse}</Text>  
+
+          <View style={styles.movementsContainer}>
+            <Text style={styles.movementsTitle}>Lista de movimientos</Text>
+            <ScrollView>
+              {movementsList.map((movement, index) => (
+                <View key={index}  style={styles.movementCard}>
+                  <Text style={styles.movementItem}>{movement}</Text>
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+
+          <View style={styles.cameraWrapper}>
+            <CameraView
+              style={styles.camera}
+              facing={facing}
+              ref={(ref) => setCameraRef(ref)}
+            />
+             <Text style={styles.response}>{serverResponse}</Text>  
+          </View>
+
+          <View style={styles.buttonContainer}>
+            <Button title="Glosario" onPress={() => navigation.navigate('Glossary')}/>
+
+            <Button title="Volver" onPress={() => navigation.navigate('Home')} />
+          </View>
+
+        </View>
+       
     </View>
   );
 };
@@ -116,43 +150,74 @@ const PracticeMode = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    flexDirection: 'column', // Coloca los elementos de manera vertical
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  message: {
-    color: '#fff',
-    fontSize: 18,
+    padding: 16,
   },
   cameraContainer: {
-    height: '60%', // Ajusta el tamaño del cuadrado
-    width: '60%', // Ajusta el tamaño del cuadrado
+    flexDirection: 'row', // Alinea los elementos en una fila
+    width: '100%', // Ocupa todo el ancho de la pantalla
+    height: '80%', // Ajusta el alto de la cámara
+    justifyContent: 'space-between', // Coloca los elementos a los extremos
+    alignItems: 'center', // Centra los elementos verticalmente
+  },
+  movementsContainer: {
+    width: '30%', // Toma el 30% del ancho de la pantalla
+    padding: 10,
+    backgroundColor: '#ddd', // Puedes cambiar el color de fondo
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'space-between',
+  },
+  cameraWrapper: {
+    width: '40%', // Toma el 40% del ancho de la pantalla
+    justifyContent: 'center',
+    alignItems: 'center',
     aspectRatio: 1, // Relación de aspecto 1:1 para un cuadrado
     overflow: 'hidden',
     borderRadius: 20, // Opcional: bordes redondeados
-    borderWidth: 2,
-    borderColor: '#fff',
+    margin:20,
   },
   camera: {
-    flex: 1,
+    width: '100%',
+    height: 200, // Ajusta la altura de la cámara según lo que necesites
+    backgroundColor: 'lightgray',
   },
-  cameraControls: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: 20,
-    flexDirection: 'row',
+  buttonContainer: {
+    width: '30%', // Toma el 30% del ancho de la pantalla
     justifyContent: 'center',
+    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'space-between',
+    alignItems: 'space-between',
   },
-  flipButton: {
+  response: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginTop: 20,
+    color: '#000',
+  },
+  movementsTitle:{
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginTop: 20,
+    color: '#000',
+  },
+  movementCard: {
+    backgroundColor: '#f9f9f9', // Fondo de la tarjeta
     padding: 15,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    borderRadius: 10,
-  },
-  flipText: {
-    color: '#fff',
-    fontSize: 20,
+    marginBottom: 10, // Espacio entre tarjetas
+    borderRadius: 8, // Bordes redondeados
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2, // Para Android
+    width: '100%', // Para que cada tarjeta ocupe todo el ancho disponible
   },
 });
 

@@ -208,5 +208,10 @@ def video_stream(ws):
                         ws.send("Sin letra detectada")
         else:
             break
+
+@app.route('/hola')
+def hola():
+    return "Hola mundo"
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)
