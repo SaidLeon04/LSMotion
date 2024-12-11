@@ -39,7 +39,7 @@ const AbcScratch = ({ navigation }) => {
     setServerResponse("¡Mueve tus manos para comenzar!");
     if (socketRef.current === null || socketRef.current.readyState === WebSocket.CLOSED) {
      // socketRef.current = new WebSocket("wss://handdetection-api.onrender.com/video-stream");
-      socketRef.current = new WebSocket("ws://localhost:5000/abc");
+     socketRef.current = new WebSocket("wss://hand-detection.onrender.com/abc");
       
       // Depración de la conexión, no hace nada en el funcionamiento
      socketRef.current.onopen = () => {

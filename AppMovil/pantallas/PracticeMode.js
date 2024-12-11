@@ -39,7 +39,7 @@ const PracticeMode = ({ navigation }) => {
     setServerResponse("¡Mueve tus manos para comenzar!");
     if (socketRef.current === null || socketRef.current.readyState === WebSocket.CLOSED) {
      // socketRef.current = new WebSocket("wss://handdetection-api.onrender.com/video-stream");
-      socketRef.current = new WebSocket("ws://localhost:5000/video-stream");
+     socketRef.current = new WebSocket("wss://hand-detection.onrender.com/video-stream");
       
       // Depración de la conexión, no hace nada en el funcionamiento
      socketRef.current.onopen = () => {
@@ -117,13 +117,13 @@ const PracticeMode = ({ navigation }) => {
 
           <View style={styles.movementsContainer}>
             <Text style={styles.movementsTitle}>Lista de movimientos</Text>
-              <ScrollView>
-                {movementsList.reverse().map((movement, index) => (
-                  <View key={index}  style={styles.movementCard}>
-                    <Text style={styles.movementItem}>{movement}</Text>
-                  </View>
-                ))}
-              </ScrollView>
+            <ScrollView>
+              {movementsList.map((movement, index) => (
+                <View key={index}  style={styles.movementCard}>
+                  <Text style={styles.movementItem}>{movement}</Text>
+                </View>
+              ))}
+            </ScrollView>
           </View>
 
           <View style={styles.cameraWrapper}>
