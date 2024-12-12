@@ -9,18 +9,18 @@ import {
 } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 
-const PracticeMode = ({ navigation }) => {
+const AbcScratch = ({ navigation }) => {
 
   // Respuestas interactivas
   const respuestas = ["Casi lo logras", "Bien", "Ajusta tu posición", "Sigue asi", "Un poco mas preciso"];
 
-  const [movementsList, setMovementsList] = useState([]);
+  const movementsList = ["a", "b", "c"];
 
-  const pastelColors = [
-    "#A3C9FF", // Azul claro pastel
-    "#FFB3B3", // Rojo pastel
-    "#FFEB99"  // Amarillo pastel
-  ];
+  const [score, setScore] = useState(0);
+  const [backgroundColorA, setBackgroundColorA] = useState('white');
+  const [backgroundColorB, setBackgroundColorB] = useState('white');
+  const [backgroundColorC, setBackgroundColorC] = useState('white');
+
 
   
   // Establecer tipo de cámara
@@ -38,8 +38,8 @@ const PracticeMode = ({ navigation }) => {
   useEffect(() => {
     setServerResponse("¡Mueve tus manos para comenzar!");
     if (socketRef.current === null || socketRef.current.readyState === WebSocket.CLOSED) {
-      socketRef.current = new WebSocket("http://localhost:5000/video-stream");
-     //socketRef.current = new WebSocket("wss://hand-detection.onrender.com/video-stream");
+     // socketRef.current = new WebSocket("wss://handdetection-api.onrender.com/video-stream");
+     socketRef.current = new WebSocket("wss://hand-detection.onrender.com/abc");
       
       // Depración de la conexión, no hace nada en el funcionamiento
      socketRef.current.onopen = () => {
@@ -55,8 +55,16 @@ const PracticeMode = ({ navigation }) => {
             setServerResponse(respuestas[randomPhrase]);
           }else{
             setServerResponse(event.data);
-            const newMovement = event.data;
-            setMovementsList((prevList) => [...prevList, newMovement]);
+            if (event.data === 'a') {
+              setScore((prevScore) => prevScore + 50);
+              setBackgroundColorA('#A3C9FF');
+            } else if (event.data === 'b') {
+              setScore((prevScore) => prevScore + 25);
+              setBackgroundColorB('#FFEB99');
+            } else if (event.data === 'c') {
+              setScore((prevScore) => prevScore + 10);
+              setBackgroundColorC('#FFB3B3');
+            }
           }
         };
       }
@@ -113,63 +121,69 @@ const PracticeMode = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-  <View style={styles.cameraContainer}>
+       <View style={styles.cameraContainer}>
 
-    <View style={styles.movementsContainer}>
-      <Text style={styles.movementsTitle}>Lista de movimientos</Text>
-      <ScrollView>
-        {movementsList.map((movement, index) => (
-          <View key={index} style={styles.movementCard}>
-            <Text style={styles.movementItem}>{movement}</Text>
+          <View style={styles.movementsContainer}>
+            <Text style={styles.movementsTitle}>Lista de movimientos</Text>
+            <View>
+                <View style={[styles.movementCard, { backgroundColor:backgroundColorA }]}>
+                  <Text style={styles.movementItem}>{movementsList[0]}</Text>
+                </View>
+                <View style={[styles.movementCard, { backgroundColor:backgroundColorB }]}>
+                  <Text style={styles.movementItem}>{movementsList[1]}</Text>
+                </View>
+                <View style={[styles.movementCard, { backgroundColor:backgroundColorC }]}>
+                  <Text style={styles.movementItem}>{movementsList[2]}</Text>
+                </View>
+              </View>
+
           </View>
-        ))}
-      </ScrollView>
+
+          <View style={styles.cameraWrapper}>
+            <CameraView
+              style={styles.camera}
+              facing={facing}
+              ref={(ref) => setCameraRef(ref)}
+            />
+             <Text style={styles.response}>{serverResponse}</Text>  
+          </View>
+
+          <View style={styles.buttonContainer}>
+            <View style={styles.scoreContainer}>
+              <Text style={styles.score}>Puntuación</Text>
+              <Text style={styles.score}>{score}</Text>
+            </View>
+        
+            <Button title="Glosario" onPress={() => navigation.navigate('Glossary')}/>
+
+            <Button title="Volver" onPress={() => navigation.navigate('Home')} />
+          </View>
+
+        </View>
+       
     </View>
-
-    <View style={styles.cameraWrapper}>
-      <CameraView
-        style={styles.camera}
-        facing={facing}
-        ref={(ref) => setCameraRef(ref)}
-      />
-      <Text style={styles.response}>{serverResponse}</Text>  
-    </View>
-
-    {/* Usamos TouchableOpacity para el botón */}
-    <View style={styles.buttonContainer}>
-      <TouchableOpacity
-        style={styles.backButton} // Estilo del botón
-        onPress={() => navigation.navigate('Home')}
-      >
-        <Text style={styles.backButtonText}>Volver</Text>
-      </TouchableOpacity>
-    </View>
-
-  </View>
-</View>
-
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: 'column',
+    flexDirection: 'column', // Coloca los elementos de manera vertical
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
   },
   cameraContainer: {
-    flexDirection: 'row',
-    width: '100%',
-    height: '80%',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: 'row', // Alinea los elementos en una fila
+    width: '100%', // Ocupa todo el ancho de la pantalla
+    height: '80%', // Ajusta el alto de la cámara
+    justifyContent: 'space-between', // Coloca los elementos a los extremos
+    alignItems: 'center', // Centra los elementos verticalmente
   },
   movementsContainer: {
-    width: '30%',
+    width: '30%', // Toma el 30% del ancho de la pantalla
     padding: 10,
-    backgroundColor: '#ddd',
+    backgroundColor: '#ddd', // Puedes cambiar el color de fondo
     justifyContent: 'center',
     alignItems: 'center',
     height: '100%',
@@ -178,38 +192,26 @@ const styles = StyleSheet.create({
     alignItems: 'space-between',
   },
   cameraWrapper: {
-    width: '40%',
+    width: '40%', // Toma el 40% del ancho de la pantalla
     justifyContent: 'center',
     alignItems: 'center',
-    aspectRatio: 1,
+    aspectRatio: 1, // Relación de aspecto 1:1 para un cuadrado
     overflow: 'hidden',
-    borderRadius: 20,
-    margin: 20,
+    borderRadius: 20, // Opcional: bordes redondeados
+    margin:20,
   },
   camera: {
     width: '100%',
-    height: 200,
+    height: 200, // Ajusta la altura de la cámara según lo que necesites
     backgroundColor: 'lightgray',
   },
   buttonContainer: {
-    width: '80%',
+    width: '30%', // Toma el 30% del ancho de la pantalla
     justifyContent: 'center',
-    alignItems: 'left',
-    marginTop: 5,
-     width: '15a%'
-  },
-  backButton: {
-    backgroundColor: '#2b5e62', // Color de fondo del botón
-    paddingVertical: 12,
-    borderRadius: 15,
-    width: '100%', // Asegura que ocupe todo el ancho disponible
     alignItems: 'center',
-    justifyContent: 'left',
-  },
-  backButtonText: {
-    color: '#fff', // Color del texto
-    fontSize: 18, // Tamaño del texto
-    fontWeight: 'bold', // Estilo del texto
+    display: 'flex',
+    flexDirection: 'space-between',
+    alignItems: 'space-between',
   },
   response: {
     fontSize: 24,
@@ -217,24 +219,30 @@ const styles = StyleSheet.create({
     marginTop: 20,
     color: '#000',
   },
-  movementsTitle: {
+  movementsTitle:{
     fontSize: 24,
     fontWeight: 'bold',
     marginTop: 20,
     color: '#000',
   },
   movementCard: {
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#f9f9f9', // Fondo de la tarjeta
     padding: 15,
-    marginBottom: 10,
-    borderRadius: 8,
+    marginBottom: 10, // Espacio entre tarjetas
+    borderRadius: 8, // Bordes redondeados
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
-    elevation: 2,
-    width: '100%',
+    elevation: 2, // Para Android
+    width: '100%', // Para que cada tarjeta ocupe todo el ancho disponible
   },
+  score:{
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginTop: 20,
+    color: '#000',
+  }
 });
 
-export default PracticeMode;
+export default AbcScratch;

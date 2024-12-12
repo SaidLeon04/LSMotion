@@ -11,6 +11,7 @@ const GameLevels = ({navigation}) => {
     try {
       const response = await axios.get(`${API_URL}/get_levels`);
       setLevels(response.data.levels);
+      console.log("Niveles obtenidos:", response.data.levels);
     } catch (error) {
       console.error("Error al obtener los niveles:", error.response?.data || error.message);
     }
@@ -41,12 +42,10 @@ const GameLevels = ({navigation}) => {
       <ScrollView contentContainerStyle={styles.levelsContainer}>
         {levels.map((level) => (
           <TouchableOpacity
-            key={level._id}
+            key={level.nombre_nivel}
             style={getCardStyle(level.estado)}
             disabled={level.estado !== "activo"}
-            onPress={() => {
-              Alert.alert(`Iniciando nivel: ${level.nombre_nivel}`);
-            }}
+            onPress={() => navigation.navigate('AbcScrach')}
           >
             <Text style={styles.cardTitle}>{level.nombre_nivel}</Text>
             <Text style={styles.cardText}>Dificultad: {level.dificultad}</Text>
