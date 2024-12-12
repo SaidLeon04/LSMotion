@@ -113,59 +113,63 @@ const PracticeMode = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-       <View style={styles.cameraContainer}>
+  <View style={styles.cameraContainer}>
 
-          <View style={styles.movementsContainer}>
-            <Text style={styles.movementsTitle}>Lista de movimientos</Text>
-            <ScrollView>
-              {movementsList.map((movement, index) => (
-                <View key={index}  style={styles.movementCard}>
-                  <Text style={styles.movementItem}>{movement}</Text>
-                </View>
-              ))}
-            </ScrollView>
+    <View style={styles.movementsContainer}>
+      <Text style={styles.movementsTitle}>Lista de movimientos</Text>
+      <ScrollView>
+        {movementsList.map((movement, index) => (
+          <View key={index} style={styles.movementCard}>
+            <Text style={styles.movementItem}>{movement}</Text>
           </View>
-
-          <View style={styles.cameraWrapper}>
-            <CameraView
-              style={styles.camera}
-              facing={facing}
-              ref={(ref) => setCameraRef(ref)}
-            />
-             <Text style={styles.response}>{serverResponse}</Text>  
-          </View>
-
-          <View style={styles.buttonContainer}>
-            <Button title="Glosario" onPress={() => navigation.navigate('Glossary')}/>
-
-            <Button title="Volver" onPress={() => navigation.navigate('Home')} />
-          </View>
-
-        </View>
-       
+        ))}
+      </ScrollView>
     </View>
+
+    <View style={styles.cameraWrapper}>
+      <CameraView
+        style={styles.camera}
+        facing={facing}
+        ref={(ref) => setCameraRef(ref)}
+      />
+      <Text style={styles.response}>{serverResponse}</Text>  
+    </View>
+
+    {/* Usamos TouchableOpacity para el botón */}
+    <View style={styles.buttonContainer}>
+      <TouchableOpacity
+        style={styles.backButton} // Estilo del botón
+        onPress={() => navigation.navigate('Home')}
+      >
+        <Text style={styles.backButtonText}>Volver</Text>
+      </TouchableOpacity>
+    </View>
+
+  </View>
+</View>
+
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: 'column', // Coloca los elementos de manera vertical
+    flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
   },
   cameraContainer: {
-    flexDirection: 'row', // Alinea los elementos en una fila
-    width: '100%', // Ocupa todo el ancho de la pantalla
-    height: '80%', // Ajusta el alto de la cámara
-    justifyContent: 'space-between', // Coloca los elementos a los extremos
-    alignItems: 'center', // Centra los elementos verticalmente
+    flexDirection: 'row',
+    width: '100%',
+    height: '80%',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   movementsContainer: {
-    width: '30%', // Toma el 30% del ancho de la pantalla
+    width: '30%',
     padding: 10,
-    backgroundColor: '#ddd', // Puedes cambiar el color de fondo
+    backgroundColor: '#ddd',
     justifyContent: 'center',
     alignItems: 'center',
     height: '100%',
@@ -174,26 +178,38 @@ const styles = StyleSheet.create({
     alignItems: 'space-between',
   },
   cameraWrapper: {
-    width: '40%', // Toma el 40% del ancho de la pantalla
+    width: '40%',
     justifyContent: 'center',
     alignItems: 'center',
-    aspectRatio: 1, // Relación de aspecto 1:1 para un cuadrado
+    aspectRatio: 1,
     overflow: 'hidden',
-    borderRadius: 20, // Opcional: bordes redondeados
-    margin:20,
+    borderRadius: 20,
+    margin: 20,
   },
   camera: {
     width: '100%',
-    height: 200, // Ajusta la altura de la cámara según lo que necesites
+    height: 200,
     backgroundColor: 'lightgray',
   },
   buttonContainer: {
-    width: '30%', // Toma el 30% del ancho de la pantalla
+    width: '80%',
     justifyContent: 'center',
+    alignItems: 'left',
+    marginTop: 5,
+     width: '15a%'
+  },
+  backButton: {
+    backgroundColor: '#2b5e62', // Color de fondo del botón
+    paddingVertical: 12,
+    borderRadius: 15,
+    width: '100%', // Asegura que ocupe todo el ancho disponible
     alignItems: 'center',
-    display: 'flex',
-    flexDirection: 'space-between',
-    alignItems: 'space-between',
+    justifyContent: 'left',
+  },
+  backButtonText: {
+    color: '#fff', // Color del texto
+    fontSize: 18, // Tamaño del texto
+    fontWeight: 'bold', // Estilo del texto
   },
   response: {
     fontSize: 24,
@@ -201,23 +217,23 @@ const styles = StyleSheet.create({
     marginTop: 20,
     color: '#000',
   },
-  movementsTitle:{
+  movementsTitle: {
     fontSize: 24,
     fontWeight: 'bold',
     marginTop: 20,
     color: '#000',
   },
   movementCard: {
-    backgroundColor: '#f9f9f9', // Fondo de la tarjeta
+    backgroundColor: '#f9f9f9',
     padding: 15,
-    marginBottom: 10, // Espacio entre tarjetas
-    borderRadius: 8, // Bordes redondeados
+    marginBottom: 10,
+    borderRadius: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
-    elevation: 2, // Para Android
-    width: '100%', // Para que cada tarjeta ocupe todo el ancho disponible
+    elevation: 2,
+    width: '100%',
   },
 });
 

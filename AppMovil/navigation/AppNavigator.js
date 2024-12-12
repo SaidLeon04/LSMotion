@@ -18,14 +18,14 @@ const AppNavigator = () => {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Home">
         <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
-        <Stack.Screen name="FormularioLogin" component={FormularioLogin}  />
-        <Stack.Screen name="FormularioCrearCuenta" component={FormularioCrearCuenta}/> 
-        <Stack.Screen name="FormularioRegistro" component={FormularioRegistro}/>
-        <Stack.Screen name="Home" component={Home} />
-        <Stack.Screen name="Profile" component={Profile} />
-        <Stack.Screen name="GameLevels" component={GameLevels}/>
+        <Stack.Screen name="FormularioLogin" component={FormularioLogin} options={{ headerShown: false }} />
+        <Stack.Screen name="FormularioCrearCuenta" component={FormularioCrearCuenta} options={{ headerShown: false }}/> 
+        <Stack.Screen name="FormularioRegistro" component={FormularioRegistro} options={{ headerShown: false }}/>
+        <Stack.Screen name="Home" component={Home} options={{ headerShown: false }}/> 
+        <Stack.Screen name="Profile" component={Profile} options={{ headerShown: false }}/>
+        <Stack.Screen name="GameLevels" component={GameLevels}options={{ headerShown: false }}/>
         <Stack.Screen name="PracticeMode" component={PracticeMode}  options={{ headerShown: false }}/>
-        <Stack.Screen name="Glossary" component={Glossary}/>
+        <Stack.Screen name="Glossary" component={Glossary} options={{ headerShown: false }}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

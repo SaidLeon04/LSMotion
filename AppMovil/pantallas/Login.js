@@ -26,6 +26,7 @@ const Login= ({ navigation }) => {
             mode="outlined"
             style={[styles.button, styles.buttonMarginRight]}
             onPress={() => navigation.navigate('FormularioLogin')} 
+            labelStyle={styles.buttonText}
              
           >
             Iniciar sesión
@@ -34,6 +35,7 @@ const Login= ({ navigation }) => {
             mode="outlined"
             style={styles.button}
             onPress={() => navigation.navigate('FormularioCrearCuenta')} 
+            labelStyle={styles.buttonText}
           >
             Crear una cuenta
           </Button>
@@ -79,6 +81,11 @@ const styles = StyleSheet.create({
   },
   buttonMarginRight: {
     marginRight: 10, // Añadimos un pequeño espacio entre los botones
+  },
+  buttonText: {
+    color: '#2b5e62', // Aquí el color del texto que proporcionaste
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
 

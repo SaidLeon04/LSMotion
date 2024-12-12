@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 
-const Glossary = () => {
+const Glossary = ({ navigation }) => {
   const [glossaryData, setGlossaryData] = useState([]);
   const [selectedLetter, setSelectedLetter] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -80,7 +80,6 @@ const Glossary = () => {
     Y: require('../assets/glossary/y.png'),
     Z: require('../assets/glossary/z.png'),
   };
-  
 
   return (
     <View style={styles.container}>
@@ -95,7 +94,7 @@ const Glossary = () => {
           renderItem={renderCard}
           keyExtractor={(item) => item._id}
           contentContainerStyle={styles.list}
-          numColumns={3}
+          numColumns={5}
         />
       )}
 
@@ -124,6 +123,9 @@ const Glossary = () => {
           </View>
         </Modal>
       )}
+      <TouchableOpacity style={styles.homeButton} onPress={() => navigation.navigate('Home')}>
+        <Text style={styles.homeButtonText}>Volver</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -215,6 +217,28 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  footer: {
+    position: 'absolute',
+    bottom: 20,
+    width: '100%',
+    alignItems: 'center',
+  },
+  homeButton: {
+    backgroundColor: '#2b5e62',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    width: '50%',
+    alignSelf: 'center',
+    borderRadius: 25,
+    elevation: 5, 
+  },
+  homeButtonText: {
+    color: '#ffffff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  
 });
 
 export default Glossary;

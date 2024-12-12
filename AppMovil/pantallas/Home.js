@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image, Animated} from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Audio } from "expo-av";
@@ -78,36 +78,43 @@ const Home = ({ navigation }) => {
       navigation.navigate(destination);
     }
   };
+  const handleButtonPress = () => {
+    handleNavigation("GameLevels");
+  };
 
   return (
     <View style={styles.container}>
+      {/* Logo en la esquina superior izquierda */}
+      <View style={styles.logoContainer}>
+        <Image source={require("../assets/Logo.png")} style={styles.logo} />
+      </View>
+
       {/* Perfil en la esquina superior derecha */}
       <View style={styles.profileContainer}>
         <TouchableOpacity onPress={() => handleNavigation("Profile")}>
-          <MaterialCommunityIcons name="account-circle" size={50} color="#3f51b5" />
+          <MaterialCommunityIcons name="account-circle" size={50} color="#2b5e62" />
         </TouchableOpacity>
-        {/* Mostrar el nombre solo si hay token */}
         {token && <Text style={styles.userName}>{userName}</Text>}
       </View>
 
-      {/* Botones principales en el lado izquierdo */}
-      <View style={styles.leftButtonsContainer}>
+      {/* Contenido central con botones principales */}
+      <View style={styles.centerContainer}>
         <TouchableOpacity
-          style={styles.button}
+          style={styles.mainButton}
           onPress={() => handleNavigation("GameLevels")}
         >
-          <Text style={styles.buttonText}>Jugar</Text>
+          <Text style={styles.mainButtonText}>Jugar</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.buttonPractice}
+          style={styles.secondaryButton}
           onPress={() => handleNavigation("PracticeMode")}
         >
-          <Text style={styles.buttonText}>Modo Práctica</Text>
+          <Text style={styles.secondaryButtonText}>Modo Práctica</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Botón de glosario en la esquina inferior derecha */}
+      {/* Botón de glosario */}
       <TouchableOpacity
         style={styles.glossaryButton}
         onPress={() => handleNavigation("Glossary")}
@@ -121,7 +128,21 @@ const Home = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#F4F7F6", // Fondo suave y claro
+    justifyContent: "center",
+    padding: 20,
+    position: "relative",
+  },
+  logoContainer: {
+    position: "absolute",
+    top: 20,
+    left: 20,
+    zIndex: 10,
+  },
+  logo: {
+    width: 50,
+    height: 50,
+    resizeMode: "contain",
   },
   profileContainer: {
     position: "absolute",
@@ -130,34 +151,51 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   userName: {
-    marginTop: 8,
+    marginTop: 5,
     fontSize: 14,
     fontWeight: "bold",
-    color: "#3f51b5",
+    color: "#2b5e62", // Texto en verde suave para contraste
   },
-  leftButtonsContainer: {
+  centerContainer: {
     flex: 1,
     justifyContent: "center",
-    alignItems: "flex-start",
-    paddingHorizontal: 20,
+    alignItems: "center",
   },
-  button: {
-    backgroundColor: "#3f51b5",
+  mainButton: {
+    backgroundColor: "#FF5C5C", // Color vibrante para el botón principal
+    paddingVertical: 20,
+    paddingHorizontal: 50,
+    borderRadius: 25, // Bordes más redondeados
+    marginBottom: 30,
+    width: "80%",
+    alignItems: "center",
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+  },
+  secondaryButton: {
+    backgroundColor: "#FF9F5C", // Complementario pero suave
     paddingVertical: 15,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    marginBottom: 20,
+    paddingHorizontal: 40,
+    borderRadius: 25,
     width: "70%",
+    alignItems: "center",
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
   },
-  buttonPractice: {
-    backgroundColor: "#3f51b5",
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    marginBottom: 20,
-    width: "50%",
+  mainButtonText: {
+    color: "#fff",
+    fontSize: 22,
+    fontWeight: "bold",
+    textAlign: "center",
+    letterSpacing: 1,
   },
-  buttonText: {
+  secondaryButtonText: {
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
@@ -167,10 +205,15 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 40,
     right: 20,
-    backgroundColor: "#3f51b5",
+    backgroundColor: "#2b5e62", // Consistente con el perfil
     paddingVertical: 10,
     paddingHorizontal: 20,
-    borderRadius: 8,
+    borderRadius: 50,
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
   },
   glossaryButtonText: {
     color: "#fff",

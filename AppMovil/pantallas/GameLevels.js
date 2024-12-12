@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Alert } from "react-native";
 import axios from "axios";
 
-const GameLevels = () => {
+const GameLevels = ({navigation}) => {
   const [levels, setLevels] = useState([]);
   const API_URL = "https://new-folder-7x97.onrender.com"; // Cambia a tu URL del backend
 
@@ -54,6 +54,9 @@ const GameLevels = () => {
           </TouchableOpacity>
         ))}
       </ScrollView>
+      <TouchableOpacity style={styles.homeButton} onPress={() => navigation.navigate('Home')}>
+        <Text style={styles.homeButtonText}>Volver</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -94,6 +97,27 @@ const styles = StyleSheet.create({
   cardText: {
     fontSize: 14,
     color: "#fff",
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 20,
+    width: '100%',
+    alignItems: 'center',
+  },
+  homeButton: {
+    backgroundColor: '#2b5e62',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    width: '50%',
+    alignSelf: 'center',
+    borderRadius: 25,
+    elevation: 5, 
+  },
+  homeButtonText: {
+    color: '#ffffff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
 

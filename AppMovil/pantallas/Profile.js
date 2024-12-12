@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Image,
   FlatList,
+  TouchableOpacity,
   Button,
 } from "react-native";
 import { LineChart } from "react-native-chart-kit";
@@ -196,6 +197,7 @@ const Profile = () => {
         return null;
     }
   };
+   
 
   return (
     <View style={{ flex: 1 }}>
@@ -205,7 +207,16 @@ const Profile = () => {
         renderItem={renderSection}
         contentContainerStyle={styles.container}
       />
-      <Button title="Cerrar sesión" onPress={handleLogout} />
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>
+        <TouchableOpacity style={styles.homeButton} onPress={() => navigation.navigate('Home')}>
+          <Text style={styles.homeButtonText} >Volver</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.homeButtonlog} onPress={handleLogout}>
+          <Text style={styles.homeButtonTextlog} >Cerrar sesión</Text>
+        </TouchableOpacity>
+      </View>
+      
+      
     </View>
   );
 };
@@ -278,6 +289,42 @@ const styles = StyleSheet.create({
     color: "#666",
     marginTop: 10,
     textAlign: "center",
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 20,
+    width: '100%',
+    alignItems: 'center',
+  },
+  homeButton: {
+    backgroundColor: '#2b5e62',
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    width: '30%',
+    alignSelf: 'center',
+    borderRadius: 25,
+    elevation: 5, 
+  },
+  homeButtonText: {
+    color: '#ffffff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  homeButtonlog: {
+    backgroundColor: '#2b5e62',
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    width: '30%',
+    alignSelf: 'center',
+    borderRadius: 25,
+    elevation: 5, 
+  },
+  homeButtonTextlog: {
+    color: '#ffffff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
 

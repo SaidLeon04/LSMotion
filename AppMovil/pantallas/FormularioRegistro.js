@@ -82,7 +82,7 @@ const FormularioRegistro = ({ route, navigation }) => {
           value={verifyPassword}
           onChangeText={setVerifyPassword}
         />
-        <Button mode="outlined" style={styles.button} onPress={handleRegister}>
+        <Button mode="outlined" style={styles.button} labelStyle={styles.buttonText} onPress={handleRegister}>
           Registrar
         </Button>
       </ScrollView>
@@ -96,6 +96,11 @@ const styles = StyleSheet.create({
   logo: { width: 50, height: 50, marginBottom: 30 },
   input: { width: '80%', marginBottom: 15 },
   button: { marginTop: 20, width: '80%' },
+  buttonText: {
+    color: '#2b5e62', // Aquí el color del texto que proporcionaste
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
 });
 
 export default FormularioRegistro;

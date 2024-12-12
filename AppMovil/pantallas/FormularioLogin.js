@@ -102,7 +102,8 @@ const FormularioLogin = ({ navigation }) => {
         <View style={styles.buttonsContainer}>
           <Button
             mode="outlined"
-            style={styles.button}
+            style={styles.button }
+            labelStyle={styles.buttonText}
             onPress={handleLogin} // Llamar a la función de inicio de sesión
           >
             Ingresar
@@ -137,13 +138,22 @@ const styles = StyleSheet.create({
   },
   buttonsContainer: {
     marginTop: 20,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "80%",
+    flexDirection: 'row',
+    justifyContent: 'center', // Centrar el botón
+    alignSelf: 'center',
+    width: '80%',
   },
   button: {
-    width: "48%",
+    width: '100%', // Hacer el botón más ancho
+    paddingVertical: 12,
+    borderRadius: 15,
+  },
+  buttonText: {
+    color: '#2b5e62', // Aquí el color del texto que proporcionaste
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
+
 
 export default FormularioLogin;
