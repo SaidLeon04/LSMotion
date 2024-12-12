@@ -9,16 +9,16 @@ import {
   Dimensions,
 } from "react-native";
 import { LineChart } from "react-native-chart-kit";
-import { MaterialCommunityIcons } from 'react-native-vector-icons'; // Importar los íconos
+import { MaterialCommunityIcons } from "react-native-vector-icons"; // Asegúrate de que esté bien importado
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation } from "@react-navigation/native"; // Hook de navegación
+import { useNavigation } from "@react-navigation/native";
 
 const Profile = () => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigation = useNavigation(); // Hook para manejar navegación
+  const navigation = useNavigation();
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -41,7 +41,7 @@ const Profile = () => {
         const user = response.data.user;
 
         // Normalizar datos:
-        const avatarUrl = user.avatar.startsWith("http")
+        const avatarUrl = user.avatar && user.avatar.startsWith("http")
           ? user.avatar
           : `https://new-folder-7x97.onrender.com/uploads/${user.avatar}`;
 
@@ -52,9 +52,9 @@ const Profile = () => {
             ...user.progreso,
             curva_aprendizaje: user.progreso.curva_aprendizaje.length
               ? user.progreso.curva_aprendizaje
-              : [0, 0, 0, 0], // Valores por defecto
+              : [0, 0, 0, 0],
           },
-          logros: user.logros || [], // Asegurar que sea un arreglo
+          logros: user.logros || [],
         });
 
         setLoading(false);
@@ -73,8 +73,8 @@ const Profile = () => {
 
   const handleLogout = async () => {
     try {
-      await AsyncStorage.removeItem("authToken"); // Elimina el token
-      navigation.replace("Login"); // Redirige a la pantalla de inicio de sesión
+      await AsyncStorage.removeItem("authToken");
+      navigation.replace("Login");
     } catch (err) {
       console.log("Error al cerrar sesión:", err);
     }
@@ -102,6 +102,8 @@ const Profile = () => {
     { id: "avatar", type: "avatar", data: userData.avatar },
     { id: "stats", type: "stats", data: userData.progreso },
     { id: "achievements", type: "achievements", data: userData.logros },
+    { id: "logout", type: "logout" },
+    { id: "back", type: "back" },
   ];
 
   const renderSection = ({ item }) => {
@@ -109,13 +111,13 @@ const Profile = () => {
       case "avatar":
         return (
           <View style={styles.section}>
-            {item.data ? (
+            {item.data && item.data !== "https://new-folder-7x97.onrender.com/uploads/default_avatar.png" ? (
               <Image source={{ uri: item.data }} style={styles.avatar} />
             ) : (
               <MaterialCommunityIcons
                 name="account-circle" // Ícono por defecto si no hay avatar
                 size={120}
-                color="#3f51b5" // Puedes elegir otro color para el ícono
+                color="#3f51b5" // Color del ícono
               />
             )}
             <Text style={styles.username}>{userData.nombre_usuario}</Text>
@@ -201,6 +203,22 @@ const Profile = () => {
             )}
           </View>
         );
+      case "logout":
+        return (
+          <View style={styles.section}>
+            <TouchableOpacity style={styles.homeButtonlog} onPress={handleLogout}>
+              <Text style={styles.homeButtonTextlog}>Cerrar sesión</Text>
+            </TouchableOpacity>
+          </View>
+        );
+      case "back":
+        return (
+          <View style={styles.section}>
+            <TouchableOpacity style={styles.homeButton} onPress={() => navigation.navigate('Home')}>
+              <Text style={styles.homeButtonText}>Volver</Text>
+            </TouchableOpacity>
+          </View>
+        );
       default:
         return null;
     }
@@ -209,19 +227,12 @@ const Profile = () => {
   return (
     <View style={{ flex: 1 }}>
       <FlatList
-        data={sections.filter((section) => !!section.data)}
+        data={sections.filter((section) => !!section.data || section.type === "logout" || section.type === "back")}
         keyExtractor={(item) => item.id}
         renderItem={renderSection}
         contentContainerStyle={styles.container}
+        scrollEnabled={true}  // Habilitar el desplazamiento
       />
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>
-        <TouchableOpacity style={styles.homeButton} onPress={() => navigation.navigate('Home')}>
-          <Text style={styles.homeButtonText}>Volver</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.homeButtonlog} onPress={handleLogout}>
-          <Text style={styles.homeButtonTextlog}>Cerrar sesión</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 };
@@ -231,6 +242,9 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: "#f5f5f5",
     alignItems: "center",
+    flexGrow: 1,
+    // Agregar esto para permitir scroll en dispositivos web
+    overflowY: 'auto',
   },
   section: {
     marginBottom: 30,
@@ -294,12 +308,6 @@ const styles = StyleSheet.create({
     color: "#666",
     marginTop: 10,
     textAlign: "center",
-  },
-  footer: {
-    position: 'absolute',
-    bottom: 20,
-    width: '100%',
-    alignItems: 'center',
   },
   homeButton: {
     backgroundColor: '#2b5e62',
