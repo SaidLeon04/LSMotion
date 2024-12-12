@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image, Animated} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image, Animated, Dimensions } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Audio } from "expo-av";
-import bgMusic from '../assets/bgmusic.mp3';
-
+import bgMusic from '../assets/bgmusic.mp3'; // Usa esta importación
 
 const Home = ({ navigation }) => {
-  
-  const bgMusic = require('../assets/bgmusic.mp3');
-  const [sound, setSound] = useState(null);
+  const { width } = Dimensions.get('window'); // Obtener dimensiones de pantalla
 
+  // Calcular dinámicamente el tamaño del logo de texto
+  const logoTextWidth = width > 768 ? 1000 : 600; // Ancho del logo de texto según el ancho de la pantalla
+  const logoTextHeight = width > 768 ? 150 : 100; // Alto del logo de texto según el ancho de la pantalla
+
+  const [sound, setSound] = useState(null);
   const [userName, setUserName] = useState("Usuario");
   const [token, setToken] = useState(null);
-
 
   const isTokenExpired = (token) => {
     try {
@@ -52,11 +53,10 @@ const Home = ({ navigation }) => {
 
     checkToken();
   }, [navigation]);
+
   useEffect(() => {
     const loadSound = async () => {
-      const { sound } = await Audio.Sound.createAsync(
-        require("../assets/bgmusic.mp3") // Agrega el archivo de música en la carpeta assets
-      );
+      const { sound } = await Audio.Sound.createAsync(bgMusic); // Usa la importación aquí
       setSound(sound);
       await sound.playAsync(); // Reproducir la música
     };
@@ -96,9 +96,21 @@ const Home = ({ navigation }) => {
         </TouchableOpacity>
         {token && <Text style={styles.userName}>{userName}</Text>}
       </View>
-
+      
       {/* Contenido central con botones principales */}
       <View style={styles.centerContainer}>
+        <View style={styles.logoAboveButtons}>
+            {/* Logo de texto con tamaño ajustado */}
+            <Image
+              source={require("../assets/Textlogo.png")}
+              style={{
+                width: logoTextWidth,  // Aplicamos el tamaño dinámico
+                height: logoTextHeight, // Aplicamos el tamaño dinámico
+                resizeMode: 'contain',
+              }}
+            />
+          </View>
+
         <TouchableOpacity
           style={styles.mainButton}
           onPress={() => handleNavigation("GameLevels")}
@@ -160,6 +172,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    pointerEvents: "box-none", // Permitir que los hijos reciban eventos táctiles.
   },
   mainButton: {
     backgroundColor: "#FF5C5C", // Color vibrante para el botón principal

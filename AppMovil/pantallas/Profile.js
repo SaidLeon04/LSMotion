@@ -6,10 +6,10 @@ import {
   Image,
   FlatList,
   TouchableOpacity,
-  Button,
+  Dimensions,
 } from "react-native";
 import { LineChart } from "react-native-chart-kit";
-import { Dimensions } from "react-native";
+import { MaterialCommunityIcons } from 'react-native-vector-icons'; // Importar los íconos
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native"; // Hook de navegación
@@ -109,7 +109,15 @@ const Profile = () => {
       case "avatar":
         return (
           <View style={styles.section}>
-            <Image source={{ uri: item.data }} style={styles.avatar} />
+            {item.data ? (
+              <Image source={{ uri: item.data }} style={styles.avatar} />
+            ) : (
+              <MaterialCommunityIcons
+                name="account-circle" // Ícono por defecto si no hay avatar
+                size={120}
+                color="#3f51b5" // Puedes elegir otro color para el ícono
+              />
+            )}
             <Text style={styles.username}>{userData.nombre_usuario}</Text>
           </View>
         );
@@ -197,7 +205,6 @@ const Profile = () => {
         return null;
     }
   };
-   
 
   return (
     <View style={{ flex: 1 }}>
@@ -209,14 +216,12 @@ const Profile = () => {
       />
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>
         <TouchableOpacity style={styles.homeButton} onPress={() => navigation.navigate('Home')}>
-          <Text style={styles.homeButtonText} >Volver</Text>
+          <Text style={styles.homeButtonText}>Volver</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.homeButtonlog} onPress={handleLogout}>
-          <Text style={styles.homeButtonTextlog} >Cerrar sesión</Text>
+          <Text style={styles.homeButtonTextlog}>Cerrar sesión</Text>
         </TouchableOpacity>
       </View>
-      
-      
     </View>
   );
 };
