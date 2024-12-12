@@ -38,8 +38,8 @@ const PracticeMode = ({ navigation }) => {
   useEffect(() => {
     setServerResponse("¡Mueve tus manos para comenzar!");
     if (socketRef.current === null || socketRef.current.readyState === WebSocket.CLOSED) {
-     // socketRef.current = new WebSocket("wss://handdetection-api.onrender.com/video-stream");
-     socketRef.current = new WebSocket("wss://hand-detection.onrender.com/video-stream");
+      socketRef.current = new WebSocket("http://localhost:5000/video-stream");
+     //socketRef.current = new WebSocket("wss://hand-detection.onrender.com/video-stream");
       
       // Depración de la conexión, no hace nada en el funcionamiento
      socketRef.current.onopen = () => {
